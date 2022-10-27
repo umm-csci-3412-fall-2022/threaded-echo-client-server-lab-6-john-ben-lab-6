@@ -17,8 +17,8 @@ public class EchoClient {
 	private void start() throws IOException, InterruptedException {
 		Socket socket = new Socket("localhost", PORT_NUMBER);
 
-		InputReader iReader = new InputReader(socket);
-                OutputWriter oWriter = new OutputWriter(socket);
+		InputReader iReader = new InputReader(socket.getInputStream());
+                OutputWriter oWriter = new OutputWriter(socket.getOutputStream());
 
                 Thread inputThread = new Thread(iReader);
                 Thread outputThread = new Thread(oWriter);
@@ -26,23 +26,27 @@ public class EchoClient {
                 inputThread.start();
                 outputThread.start();
 
-
-
+                outputThread.join();
+                socket.shutdownOutput();
+                inputThread.join();
+                socket.close();
 	}
 
         private class InputReader implements Runnable {
-          Socket socket;
+          InputStream input;
 
-          public InputReader(Socket s) {
-            socket = s;
+          public InputReader(InputStream i) {
+            input = i;
           }
 
           @Override
           public void run() {
             try {
-              InputStream input = socket.getInputStream();
-              while (!socket.isInputShutdown()) {
-                System.out.write(input.read());
+              int nextByte;
+              //Continually process bytes from input until EOF
+              //EOF is represented by -1
+              while ((nextByte = input.read()) != -1) {
+                System.out.write(nextByte);
               }
 
               System.out.write(input.readAllBytes());
@@ -50,32 +54,22 @@ public class EchoClient {
             } catch (IOException e) {
               System.out.println("Caught an unhandled exception: ");
               System.out.println(e);
-            } finally {
-              try {
-                socket.close();
-              } catch (IOException e) {
-                System.out.println("Caught an unhandled exception while trying to close the socket: ");
-                System.out.println(e);
-              }
             }
           }
         }
 
         private class OutputWriter implements Runnable {
-          Socket socket;
+          OutputStream output;
 
-          public OutputWriter(Socket s) {
-            socket = s;
+          public OutputWriter(OutputStream os) {
+            output = os;
           }
 
           @Override
           public void run() {
 
             try {
-              OutputStream output = socket.getOutputStream();
               int nextByte;
-              //Continually process bytes from System.in until EOF
-              //EOF is represented by -1
               while ((nextByte = System.in.read()) != -1) {
                 output.write(nextByte);
               }
@@ -84,13 +78,6 @@ public class EchoClient {
             } catch (IOException e) {
               System.out.println("Caught an unhandled exception: ");
               System.out.println(e);
-            } finally {
-              try {
-                socket.shutdownOutput();
-              } catch (IOException e) {
-                System.out.println("Caught an unhandled exception while trying to shut down the output: ");
-                System.out.println(e);
-              }
             }
           }
         }
