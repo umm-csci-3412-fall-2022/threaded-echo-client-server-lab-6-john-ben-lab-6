@@ -1,11 +1,14 @@
 # Experimental results
 
-_Briefly (you don't need to write a lot) document the results of your
-experiments with throwing a bunch of clients at your server, as described
-in the lab write-up. You should probably delete or incorporate this text
-into your write-up._
+Using the pumpkins file:
 
-_You should indicate here what variations you tried (every connection gets
-a new thread, using a threadpool of size X, etc., etc.), and what the
-results were like when you spun up a bunch of threads that send
-decent-sized files to the server._
+Ran 0 commenction in 1 ms.
+Ran 5 connections in 547 ms.
+Ran 10 connections in 927 ms.
+Ran 15 connection in 1266 ms.
+Ran 20 connections in 1691 ms.
+ran 25 connection in 2042 ms.
+Ran 40 connections in 3220 ms.
+Ran 100 in 8181 ms.
+
+
